@@ -19,4 +19,13 @@ for i in range(len(words)):
         if i < 3:
             translation=div.find('a',class_='dictLink featured')
             print(translation.getText())
+            example = div.find('div', class_='example line')
+
+            examplesENG = example.findAll('span', class_='tag_s')
+            if len(examplesENG) != 0:
+                print(examplesENG[0].getText()) 
+
+            examplesDEU = example.findAll('span', class_='tag_t')
+            if len(examplesDEU) != 0:
+                print(examplesDEU[0].getText()) 
     print()
