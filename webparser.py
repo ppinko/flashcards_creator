@@ -6,8 +6,11 @@ import genanki
 
 print('\n')
 
-# words = ['kitchen', 'bedroom', 'bathroom', 'corridor']
-# flashcards = []
+basicUrl = 'https://www.linguee.de/deutsch-englisch/search?source=englisch&query='
+
+words = ['kitchen', 'bedroom', 'bathroom', 'corridor']
+translated = []
+flashcards = []
 
 
 class Flashcard:
@@ -68,88 +71,69 @@ class Flashcard:
         return back
 
 
-def fromFile(words, flashcards):
-    basicUrl = 'https://www.linguee.de/deutsch-englisch/search?source=englisch&query='
-    for i, word in enumerate(words):
-        card = Flashcard(word)
-        url = basicUrl + word
-        page = requests.get(url)
-        soup = bs4(page.text, 'html.parser')
-        divs = soup.findAll('div', class_='translation sortablemg featured')
-        for i, div in enumerate(divs):
-            if i < 3:
-                translation = div.find('a', class_='dictLink featured')
-                card.translations.append(translation.getText())
+for i, word in enumerate(words):
+    card = Flashcard(word)
+    url = basicUrl + word
+    page = requests.get(url)
+    soup = bs4(page.text, 'html.parser')
+    divs = soup.findAll('div', class_='translation sortablemg featured')
+    for i, div in enumerate(divs):
+        if i < 3:
+            translation = div.find('a', class_='dictLink featured')
+            card.translations.append(translation.getText())
 
-                example = div.find('div', class_='example line')
-                examplesENG = example.findAll('span', class_='tag_s')
-                if len(examplesENG) != 0:
-                    card.questions.append(examplesENG[0].getText())
-                else:
-                    card.questions.append('')
+            example = div.find('div', class_='example line')
+            examplesENG = example.findAll('span', class_='tag_s')
+            if len(examplesENG) != 0:
+                card.questions.append(examplesENG[0].getText())
+            else:
+                card.questions.append('')
 
-                examplesDEU = example.findAll('span', class_='tag_t')
-                if len(examplesDEU) != 0:
-                    card.examples.append(examplesDEU[0].getText())
-                else:
-                    card.examples.append('')
+            examplesDEU = example.findAll('span', class_='tag_t')
+            if len(examplesDEU) != 0:
+                card.examples.append(examplesDEU[0].getText())
+            else:
+                card.examples.append('')
 
-        flashcards.append(copy.deepcopy(card))
+    flashcards.append(copy.deepcopy(card))
 
+basicAndReversedEngDeu = genanki.Model(
+    1485830180,
+    'Basic (and reversed card) (ENG-DEU)',
+    fields=[
+        {
+            'name': 'Front',
+            'font': 'Arial',
+        },
+        {
+            'name': 'Back',
+            'font': 'Arial',
+        },
+    ],
+    templates=[
+        {
+            'name': 'Card 1',
+            'qfmt': '{{Front}}',
+            'afmt': '{{FrontSide}}\n\n<hr id=answer>\n\n{{Back}}',
+        },
+        {
+            'name': 'Card 2',
+            'qfmt': '{{Back}}',
+            'afmt': '{{FrontSide}}\n\n<hr id=answer>\n\n{{Front}}',
+        },
+    ],
+    css='.card {\n font-family: arial;\n font-size: 20px;\n text-align: center;\n color: black;\n background-color: white;\n}\n',
+)
 
-def createDeck(flashcards):
-    basicAndReversedEngDeu = genanki.Model(
-        1485830180,
-        'Basic (and reversed card) (ENG-DEU)',
-        fields=[
-            {
-                'name': 'Front',
-                'font': 'Arial',
-            },
-            {
-                'name': 'Back',
-                'font': 'Arial',
-            },
-        ],
-        templates=[
-            {
-                'name': 'Card 1',
-                'qfmt': '{{Front}}',
-                'afmt': '{{FrontSide}}\n\n<hr id=answer>\n\n{{Back}}',
-            },
-            {
-                'name': 'Card 2',
-                'qfmt': '{{Back}}',
-                'afmt': '{{FrontSide}}\n\n<hr id=answer>\n\n{{Front}}',
-            },
-        ],
-        css='.card {\n font-family: arial;\n font-size: 20px;\n text-align: center;\n color: black;\n background-color: white;\n}\n',
-    )
+my_deck = genanki.Deck(
+    2059400111,
+    'rooms')
 
-    my_deck = genanki.Deck(
-        2059400111,
-        'mouse')
+for i in flashcards:
+    my_note = genanki.Note(
+        model=basicAndReversedEngDeu,
+        fields=[i.front(), i.back()])
+    my_deck.add_note(my_note)
 
-    for i in flashcards:
-        my_note = genanki.Note(
-            model=basicAndReversedEngDeu,
-            fields=[i.front(), i.back()])
-        my_deck.add_note(my_note)
-
-    # generate Anki deck
-    genanki.Package(my_deck).write_to_file('mouse.apkg')
-
-
-if __name__ == "__main__":
-    import sys
-    file = str(sys.argv[1])
-    words = []
-    flashcards = []
-    with open(file, 'r') as f:
-        for i in f:
-            if len(i.strip()) > 0:
-                words.append(i.strip())
-
-    if len(words) != 0:
-        fromFile(words, flashcards)
-        createDeck(flashcards)
+# generate Anki deck
+genanki.Package(my_deck).write_to_file('rooms.apkg')
