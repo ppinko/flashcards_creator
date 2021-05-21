@@ -8,7 +8,7 @@ print('\n')
 
 basicUrl = 'https://www.linguee.de/deutsch-englisch/search?source=englisch&query='
 
-words = ['living+room', 'kitchen', 'bedroom', 'bathroom', 'corridor']
+words = ['kitchen', 'bedroom', 'bathroom', 'corridor']
 translated = []
 flashcards = []
 
@@ -77,24 +77,6 @@ for i, word in enumerate(words):
 
     flashcards.append(copy.deepcopy(card))
 
-for i in flashcards:
-    i.print()
-
-my_model = genanki.Model(
-    1607392319,
-    'Simple Model',
-    fields=[
-        {'name': 'Question'},
-        {'name': 'Answer'},
-    ],
-    templates=[
-        {
-            'name': 'Card 1',
-            'qfmt': '{{Question}}',
-            'afmt': '{{FrontSide}}<hr id="answer">{{Answer}}',
-        },
-    ])
-
 basicAndReversedEngDeu = genanki.Model(
     1485830180,
     'Basic (and reversed card) (ENG-DEU)',
@@ -123,14 +105,22 @@ basicAndReversedEngDeu = genanki.Model(
     css='.card {\n font-family: arial;\n font-size: 20px;\n text-align: center;\n color: black;\n background-color: white;\n}\n',
 )
 
-my_note = genanki.Note(
-    model=basicAndReversedEngDeu,
-    fields=['Capital of Argentina', 'Buenos Aires'])
 
 my_deck = genanki.Deck(
     2059400111,
     'roomies')
 
+my_note = genanki.Note(
+    model=basicAndReversedEngDeu,
+    fields=['Capital of Argentina', 'Buenos Aires'])
+
 my_deck.add_note(my_note)
+
+for i in flashcards:
+    my_note = genanki.Note(
+        model=basicAndReversedEngDeu,
+        fields=[i.word, i.translations[0]])
+    my_deck.add_note(my_note)
+    # i.print()
 
 genanki.Package(my_deck).write_to_file('rooms.apkg')
