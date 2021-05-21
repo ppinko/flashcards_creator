@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# VS Code build files
+.vscode/
+
+# Anki decks
+*.apkg
