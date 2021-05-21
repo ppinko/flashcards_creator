@@ -2,12 +2,13 @@ from bs4 import BeautifulSoup as bs4
 import requests
 import pandas as pd
 import copy
+import genanki
 
 print('\n')
 
 basicUrl = 'https://www.linguee.de/deutsch-englisch/search?source=englisch&query='
 
-words = ['home', 'kitchen', 'bedroom', 'bathroom', 'corridor']
+words = ['living+room', 'kitchen', 'bedroom', 'bathroom', 'corridor']
 translated = []
 flashcards = []
 
@@ -78,3 +79,58 @@ for i, word in enumerate(words):
 
 for i in flashcards:
     i.print()
+
+my_model = genanki.Model(
+    1607392319,
+    'Simple Model',
+    fields=[
+        {'name': 'Question'},
+        {'name': 'Answer'},
+    ],
+    templates=[
+        {
+            'name': 'Card 1',
+            'qfmt': '{{Question}}',
+            'afmt': '{{FrontSide}}<hr id="answer">{{Answer}}',
+        },
+    ])
+
+basicAndReversedEngDeu = genanki.Model(
+    1485830180,
+    'Basic (and reversed card) (ENG-DEU)',
+    fields=[
+        {
+            'name': 'Front',
+            'font': 'Arial',
+        },
+        {
+            'name': 'Back',
+            'font': 'Arial',
+        },
+    ],
+    templates=[
+        {
+            'name': 'Card 1',
+            'qfmt': '{{Front}}',
+            'afmt': '{{FrontSide}}\n\n<hr id=answer>\n\n{{Back}}',
+        },
+        {
+            'name': 'Card 2',
+            'qfmt': '{{Back}}',
+            'afmt': '{{FrontSide}}\n\n<hr id=answer>\n\n{{Front}}',
+        },
+    ],
+    css='.card {\n font-family: arial;\n font-size: 20px;\n text-align: center;\n color: black;\n background-color: white;\n}\n',
+)
+
+my_note = genanki.Note(
+    model=basicAndReversedEngDeu,
+    fields=['Capital of Argentina', 'Buenos Aires'])
+
+my_deck = genanki.Deck(
+    2059400111,
+    'roomies')
+
+my_deck.add_note(my_note)
+
+genanki.Package(my_deck).write_to_file('rooms.apkg')
