@@ -8,7 +8,7 @@ print('\n')
 
 basicUrl = 'https://www.linguee.de/deutsch-englisch/search?source=englisch&query='
 
-words = ['kitchen', 'bedroom', 'bathroom', 'corridor']
+words = ['room', 'sleep']
 translated = []
 flashcards = []
 
@@ -83,16 +83,21 @@ for i, word in enumerate(words):
             card.translations.append(translation.getText())
 
             example = div.find('div', class_='example line')
-            examplesENG = example.findAll('span', class_='tag_s')
-            if len(examplesENG) != 0:
-                card.questions.append(examplesENG[0].getText())
+
+            if example is not None:
+                examplesENG = example.findAll('span', class_='tag_s')
+                if len(examplesENG) != 0:
+                    card.questions.append(examplesENG[0].getText())
+                else:
+                    card.questions.append('')
+
+                examplesDEU = example.findAll('span', class_='tag_t')
+                if len(examplesDEU) != 0:
+                    card.examples.append(examplesDEU[0].getText())
+                else:
+                    card.examples.append('')
             else:
                 card.questions.append('')
-
-            examplesDEU = example.findAll('span', class_='tag_t')
-            if len(examplesDEU) != 0:
-                card.examples.append(examplesDEU[0].getText())
-            else:
                 card.examples.append('')
 
     flashcards.append(copy.deepcopy(card))
