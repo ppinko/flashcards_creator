@@ -14,6 +14,8 @@ flashcards = []
 
 
 class Flashcard:
+    """Represents the representation of anki flashcard."""
+
     # data members
     word = ''
     translations = []
@@ -21,32 +23,21 @@ class Flashcard:
     examples = []
 
     def __init__(self, word):
+        """Basic constructor.
+
+        :param word: A word to translate.
+        """
         self.word = word
         self.translations = []
         self.questions = []
         self.examples = []
 
-    def print(self):
-        print('#' * 20)
-        print(self.word, '\n')
-        for i, val in enumerate(self.questions):
-            if val != '':
-                print('{0}) {1}'.format(i, val))
-        print()
+    def front(self):
+        """Return string representation of the front side of the flashcard.
 
-        equivalents = ''
-        for i in self.translations:
-            equivalents += i + ', '
-        equivalents = equivalents[0:-2]
-        print(equivalents, '\n')
-
-        for i, val in enumerate(self.examples):
-            if val != '':
-                print('{0}) {1} -> {2}'.format(i, self.translations[i], val))
-            else:
-                print('{0}) {1}'.format(i, self.translations[i]))
-
-    def front(self) -> str:
+        :return: The string representation of the front side of the flashcard.
+        :rtype: str
+        """
         front = ''
         front += self.word + '<br/><br/>'
         for i, val in enumerate(self.questions):
@@ -54,7 +45,12 @@ class Flashcard:
                 front += '{0}) {1}'.format(i, val) + '<br/>'
         return front
 
-    def back(self) -> str:
+    def back(self):
+        """Return string representation of the back side of the flashcard.
+
+        :return: The string representation of the back side of the flashcard.
+        :rtype: str
+        """
         equivalents = ''
         for i in self.translations:
             equivalents += i + ', '
