@@ -8,7 +8,7 @@ print('\n')
 
 basicUrl = 'https://www.linguee.de/deutsch-englisch/search?source=englisch&query='
 
-words = ['room', 'sleep']
+words = ['sleep']
 translated = []
 flashcards = []
 
@@ -77,9 +77,14 @@ for i, word in enumerate(words):
     page = requests.get(url)
     soup = bs4(page.text, 'html.parser')
     divs = soup.findAll('div', class_='translation sortablemg featured')
-    for i, div in enumerate(divs):
-        if i < 3:
+    counter = 0
+    for div in divs:
+        if counter < 3:
             translation = div.find('a', class_='dictLink featured')
+            if translation is None:
+                continue
+
+            counter += 1
             card.translations.append(translation.getText())
 
             example = div.find('div', class_='example line')
@@ -99,6 +104,8 @@ for i, word in enumerate(words):
             else:
                 card.questions.append('')
                 card.examples.append('')
+        else:
+            break
 
     flashcards.append(copy.deepcopy(card))
 
