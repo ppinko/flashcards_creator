@@ -66,8 +66,6 @@ class Flashcard:
                 back += '{0}) {1} -> {2}'.format(i,
                                                  self.translations[i],
                                                  val) + '<br/>'
-            else:
-                back += '{0}) {1}'.format(i, self.translations[i]) + '<br/>'
         return back
 
 
@@ -85,7 +83,20 @@ for i, word in enumerate(words):
                 continue
 
             counter += 1
-            card.translations.append(translation.getText())
+            wordType = div.find('span', class_='tag_type')
+            wordTypeVal = ''
+            noun = ''
+            if wordType is not None:
+                wordTypeVal = wordType.getText()
+                if wordTypeVal == 'f':
+                    noun = 'die '
+                elif wordTypeVal == 'm':
+                    noun = 'der '
+                elif wordTypeVal == 'nt':
+                    noun = 'das '
+
+            translatedWord = str(translation.getText())
+            card.translations.append(noun + translatedWord)
 
             example = div.find('div', class_='example line')
 
