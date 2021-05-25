@@ -96,7 +96,11 @@ def parseWordlist(wordlist):
     :rtype: List of Flashcard
     """
     flashcards = []
+    randomGenerator = random.Random(int(time.time()) % 10e12)
     for i, word in enumerate(wordlist):
+        # delay call to request.get to avoid ip being blocked due to data
+        # scraping
+        time.sleep(randomGenerator.randint(5, 30))
         card = Flashcard(word)
         basicUrl = 'https://www.linguee.de/deutsch-englisch/search?source=englisch&query='
         url = basicUrl + word
