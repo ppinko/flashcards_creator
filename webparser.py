@@ -3,6 +3,8 @@ import requests
 import pandas as pd
 import copy
 import genanki
+import random
+import time
 
 # Anki note models
 basicAndReversedEngDeu = genanki.Model(
@@ -156,8 +158,9 @@ def generateAnkiFlashcards(wordlist, model, fileName):
     :param fileName: File name to save Anki deck.
     """
     flashcards = parseWordlist(wordlist)
+    randInt = int(time.time()) % 10e12
     deck = genanki.Deck(
-        2059400111,
+        randInt,            # unique deck ID
         fileName)
 
     for i in flashcards:
