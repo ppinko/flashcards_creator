@@ -4,13 +4,34 @@ import pandas as pd
 import copy
 import genanki
 
-print('\n')
-
-basicUrl = 'https://www.linguee.de/deutsch-englisch/search?source=englisch&query='
-
-words = ['sleep']
-translated = []
-flashcards = []
+# Anki note models
+basicAndReversedEngDeu = genanki.Model(
+    1485830180,                             # model ID (must be uniqze)
+    'Basic (and reversed card) (ENG-DEU)',
+    fields=[
+        {
+            'name': 'Front',
+            'font': 'Arial',
+        },
+        {
+            'name': 'Back',
+            'font': 'Arial',
+        },
+    ],
+    templates=[
+        {
+            'name': 'Card 1',
+            'qfmt': '{{Front}}',
+            'afmt': '{{FrontSide}}\n\n<hr id=answer>\n\n{{Back}}',
+        },
+        {
+            'name': 'Card 2',
+            'qfmt': '{{Back}}',
+            'afmt': '{{FrontSide}}\n\n<hr id=answer>\n\n{{Front}}',
+        },
+    ],
+    css='.card {\n font-family: arial;\n font-size: 20px;\n text-align: center;\n color: black;\n background-color: white;\n}\n',
+)
 
 
 class Flashcard:
@@ -65,94 +86,91 @@ class Flashcard:
         return back
 
 
-for i, word in enumerate(words):
-    card = Flashcard(word)
-    url = basicUrl + word
-    page = requests.get(url)
-    soup = bs4(page.text, 'html.parser')
-    divs = soup.findAll('div', class_='translation sortablemg featured')
-    counter = 0
-    for div in divs:
-        if counter < 3:
-            translation = div.find('a', class_='dictLink featured')
-            if translation is None:
-                continue
+def parseWordlist(wordlist):
+    """Parse online dictionary to create flashcards.
 
-            counter += 1
-            wordType = div.find('span', class_='tag_type')
-            wordTypeVal = ''
-            noun = ''
-            if wordType is not None:
-                wordTypeVal = wordType.getText()
-                if wordTypeVal == 'f':
-                    noun = 'die '
-                elif wordTypeVal == 'm':
-                    noun = 'der '
-                elif wordTypeVal == 'nt':
-                    noun = 'das '
+    :param wordlist: Wordlist to create flashcards for.
+    :return: List of preprepared anki flashcards.
+    :rtype: List of Flashcard
+    """
+    flashcards = []
+    for i, word in enumerate(wordlist):
+        card = Flashcard(word)
+        basicUrl = 'https://www.linguee.de/deutsch-englisch/search?source=englisch&query='
+        url = basicUrl + word
+        page = requests.get(url)
+        soup = bs4(page.text, 'html.parser')
+        divs = soup.findAll('div', class_='translation sortablemg featured')
+        counter = 0
+        for div in divs:
+            if counter < 3:
+                translation = div.find('a', class_='dictLink featured')
+                if translation is None:
+                    continue
 
-            translatedWord = str(translation.getText())
-            card.translations.append(noun + translatedWord)
+                counter += 1
+                wordType = div.find('span', class_='tag_type')
+                wordTypeVal = ''
+                noun = ''
+                if wordType is not None:
+                    wordTypeVal = wordType.getText()
+                    if wordTypeVal == 'f':
+                        noun = 'die '
+                    elif wordTypeVal == 'm':
+                        noun = 'der '
+                    elif wordTypeVal == 'nt':
+                        noun = 'das '
 
-            example = div.find('div', class_='example line')
+                translatedWord = str(translation.getText())
+                card.translations.append(noun + translatedWord)
 
-            if example is not None:
-                examplesENG = example.findAll('span', class_='tag_s')
-                if len(examplesENG) != 0:
-                    card.questions.append(examplesENG[0].getText())
+                example = div.find('div', class_='example line')
+
+                if example is not None:
+                    examplesENG = example.findAll('span', class_='tag_s')
+                    if len(examplesENG) != 0:
+                        card.questions.append(examplesENG[0].getText())
+                    else:
+                        card.questions.append('')
+
+                    examplesDEU = example.findAll('span', class_='tag_t')
+                    if len(examplesDEU) != 0:
+                        card.examples.append(examplesDEU[0].getText())
+                    else:
+                        card.examples.append('')
                 else:
                     card.questions.append('')
-
-                examplesDEU = example.findAll('span', class_='tag_t')
-                if len(examplesDEU) != 0:
-                    card.examples.append(examplesDEU[0].getText())
-                else:
                     card.examples.append('')
             else:
-                card.questions.append('')
-                card.examples.append('')
-        else:
-            break
+                break
 
-    flashcards.append(copy.deepcopy(card))
+        flashcards.append(copy.deepcopy(card))
+    return flashcards
 
-basicAndReversedEngDeu = genanki.Model(
-    1485830180,
-    'Basic (and reversed card) (ENG-DEU)',
-    fields=[
-        {
-            'name': 'Front',
-            'font': 'Arial',
-        },
-        {
-            'name': 'Back',
-            'font': 'Arial',
-        },
-    ],
-    templates=[
-        {
-            'name': 'Card 1',
-            'qfmt': '{{Front}}',
-            'afmt': '{{FrontSide}}\n\n<hr id=answer>\n\n{{Back}}',
-        },
-        {
-            'name': 'Card 2',
-            'qfmt': '{{Back}}',
-            'afmt': '{{FrontSide}}\n\n<hr id=answer>\n\n{{Front}}',
-        },
-    ],
-    css='.card {\n font-family: arial;\n font-size: 20px;\n text-align: center;\n color: black;\n background-color: white;\n}\n',
-)
 
-my_deck = genanki.Deck(
-    2059400111,
-    'rooms')
+def generateAnkiFlashcards(wordlist, model, fileName):
+    """Generate Anki flashcards for the given wordlist.
 
-for i in flashcards:
-    my_note = genanki.Note(
-        model=basicAndReversedEngDeu,
-        fields=[i.front(), i.back()])
-    my_deck.add_note(my_note)
+    :param wordlist: Wordlist to create flashcards for.
+    :param model: Anki note model.
+    :param fileName: File name to save Anki deck.
+    """
+    flashcards = parseWordlist(wordlist)
+    deck = genanki.Deck(
+        2059400111,
+        fileName)
 
-# generate Anki deck
-genanki.Package(my_deck).write_to_file('rooms.apkg')
+    for i in flashcards:
+        note = genanki.Note(
+            model=basicAndReversedEngDeu,
+            fields=[i.front(), i.back()])
+        deck.add_note(note)
+
+    # generate Anki deck
+    file = fileName + '.apkg'
+    genanki.Package(deck).write_to_file(file)
+
+
+wordlist = ['sleep']
+# test function call
+generateAnkiFlashcards(wordlist, basicAndReversedEngDeu, 'testDeck')
