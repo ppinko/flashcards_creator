@@ -133,3 +133,6 @@ dmypy.json
 
 # Anki decks
 *.apkg
+
+# html files
+*.html
