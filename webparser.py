@@ -1,7 +1,5 @@
 from bs4 import BeautifulSoup as bs4
 import requests
-import pandas as pd
-import copy
 import genanki
 import random
 import time
@@ -38,12 +36,6 @@ basicAndReversedEngDeu = genanki.Model(
 
 class Flashcard:
     """Represents the representation of anki flashcard."""
-
-    # data members
-    word = ''
-    translations = []
-    questions = []
-    examples = []
 
     def __init__(self, word):
         """Basic constructor.
@@ -150,26 +142,26 @@ def parseWordlist(wordlist):
             else:
                 break
 
-        flashcards.append(copy.deepcopy(card))
+        flashcards.append(card)
     return flashcards
 
 
-def generateAnkiFlashcards(wordlist, model, fileName):
+def generateAnkiFlashcards(wordlist, modelNote, fileName):
     """Generate Anki flashcards for the given wordlist.
 
     :param wordlist: Wordlist to create flashcards for.
-    :param model: Anki note model.
+    :param modelNote: Anki note model.
     :param fileName: File name to save Anki deck.
     """
     flashcards = parseWordlist(wordlist)
-    randInt = int(time.time()) % 10e12
+    randInt = int(int(time.time()) % 10e12)
     deck = genanki.Deck(
         randInt,            # unique deck ID
         fileName)
 
     for i in flashcards:
         note = genanki.Note(
-            model=basicAndReversedEngDeu,
+            model=modelNote,
             fields=[i.front(), i.back()])
         deck.add_note(note)
 
@@ -178,6 +170,6 @@ def generateAnkiFlashcards(wordlist, model, fileName):
     genanki.Package(deck).write_to_file(file)
 
 
-wordlist = ['sleep']
+wordlist = ['sleep', 'table']
 # test function call
 generateAnkiFlashcards(wordlist, basicAndReversedEngDeu, 'testDeck')
