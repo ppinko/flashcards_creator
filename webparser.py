@@ -3,6 +3,7 @@ import requests
 import genanki
 import random
 import time
+import createWordlist
 
 # Anki note models
 basicAndReversedEngDeu = genanki.Model(
@@ -170,6 +171,9 @@ def generateAnkiFlashcards(wordlist, modelNote, fileName):
     genanki.Package(deck).write_to_file(file)
 
 
-wordlist = ['sleep', 'table']
+# wordlist = ['sleep', 'table']
+wordList = createWordlist.createWordList('100mostCommonVerbs.txt')
+
 # test function call
-generateAnkiFlashcards(wordlist, basicAndReversedEngDeu, 'testDeck')
+generateAnkiFlashcards(wordList, basicAndReversedEngDeu,
+                       '100mostCommonEnglishVerbs')
