@@ -95,7 +95,10 @@ def parseWordlist(wordlist):
         # scraping
         time.sleep(randomGenerator.randint(5, 30))
         card = Flashcard(word)
-        basicUrl = 'https://www.linguee.de/deutsch-englisch/search?source=englisch&query='
+        # web scraper api to prevent IP being blocked - scraperapi
+        webScraperApi = 'http://api.scraperapi.com?api_key=2931541d27b5b3c4031cd29902ecdad0&url='
+        basicUrl = webScraperApi + \
+            'https://www.linguee.de/deutsch-englisch/search?source=englisch&query='
         url = basicUrl + word
         page = requests.get(url)
         soup = bs4(page.text, 'html.parser')
@@ -171,7 +174,7 @@ def generateAnkiFlashcards(wordlist, modelNote, fileName):
     genanki.Package(deck).write_to_file(file)
 
 
-# wordlist = ['sleep', 'table']
+# wordList = ['sleep', 'table']
 wordList = createWordlist.createWordList('100mostCommonVerbs.txt')
 
 # test function call
