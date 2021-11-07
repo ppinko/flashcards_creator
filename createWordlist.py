@@ -14,8 +14,6 @@ def createTextList(fileName, outputFile):
             if len(line) != 0:
                 writer.write(line.strip(toStrip) + '\n')
 
-# createTextlist('100englishVerbs.txt', '100mostCommonVerbs.txt')
-
 
 def createWordList(fileName):
     """Create word list from txt file.
